@@ -1,0 +1,36 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import vm from 'node:vm';
+const root = new URL('../',import.meta.url);
+const readManifest = async () => JSON.parse(await readFile(new URL('package.json',root),'utf8'));
+const readClient = async () => readFile(new URL((await readManifest()).exports['./client'],root),'utf8');
+test('manifest and shipped files resolve without external dependencies',async()=>{
+  const manifest = JSON.parse(await readFile(new URL('package.json',root),'utf8'));
+  assert.equal(manifest.name,'@local/dsh-model-usage');assert.equal(manifest.type,'module');
+  assert.ok(!manifest.dependencies);
+  assert.match(manifest.exports['.'],/^\.\/dist\/index\.[a-f0-9]{12}\.js$/);
+  assert.match(manifest.exports['./client'],/^\.\/dist\/client\.[a-f0-9]{12}\.js$/);
+  const builtHost = await import(new URL(manifest.exports['.'],root));
+  assert.equal(typeof builtHost.apply,'function');
+  assert.deepEqual(builtHost.inject,['connection','sessionPersistence']);
+  assert.equal(manifest.private,undefined);
+  assert.equal(manifest.publishConfig.access,'public');
+  assert.ok(manifest.files.includes('dist/'));
+  for (const script of ['build','test','prepack']) assert.equal(typeof manifest.scripts[script],'string');
+  assert.ok((await readFile(new URL('cordis.patch.yml',root),'utf8')).includes(manifest.exports['.']));
+  for (const file of ['index.js','core.js','prices.js','cordis.patch.yml','icon.svg','README.md','locale/zh.json','locale/en.json']) assert.ok((await readFile(new URL(file,root))).length);
+});
+test('built client matches source and registers actual sidebar/main slots',async()=>{
+  const source = await readFile(new URL('panel.js',root),'utf8');
+  const built = await readClient();
+  assert.ok(built.endsWith(source));
+  let plugin;vm.runInNewContext(built,{window:{__ModuleLoader__:{load(value){plugin=value}}},Intl,URL});
+  assert.equal(plugin.id,'@local/dsh-model-usage');
+  const registrations = [];
+  const extension = plugin.factory(name=>{assert.equal(name,'react');return {createElement(){}}});
+  extension.apply({slots:{inject(_slot,run){run()},register(meta,component){registrations.push({meta,component})}}});
+  assert.equal(registrations.length,2);
+  assert.equal(registrations[0].meta.key,'model-usage');assert.equal(registrations[1].meta.id,'model-usage');
+  assert.equal(typeof registrations[0].component,'function');assert.equal(registrations[1].meta.label,'模型用量');
+});

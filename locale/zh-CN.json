@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "模型用量",
+    "description": "极简模型用量饼图、Token 与 API 等价估算成本；合并同型号 OpenAI 来源，支持 MiniMax 官方价格。"
+  }
+}

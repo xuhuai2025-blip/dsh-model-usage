@@ -1,0 +1,47 @@
+{
+  "name": "@local/dsh-model-usage",
+  "version": "0.2.0",
+  "type": "module",
+  "description": "模型用量：本机 DSH 会话 Token、模型占比、趋势与官方 API 等价成本估算。",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.14.0",
+    "dsh": "^0.2.1-rc.5"
+  },
+  "packageManager": "pnpm@11.28.5",
+  "exports": {
+    ".": "./dist/index.0caf97742342.js",
+    "./client": "./dist/client.9067c9c9c7e6.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "dist/",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node build.mjs && node --test tests/*.test.mjs",
+    "prepack": "node build.mjs && node --test tests/*.test.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-layout"
+      ]
+    }
+  }
+}
