@@ -7,12 +7,19 @@ const readManifest = async () => JSON.parse(await readFile(new URL('package.json
 const readClient = async () => readFile(new URL((await readManifest()).exports['./client'],root),'utf8');
 test('manifest and shipped files resolve without external dependencies',async()=>{
   const manifest = JSON.parse(await readFile(new URL('package.json',root),'utf8'));
-  assert.equal(manifest.name,'@local/dsh-model-usage');assert.equal(manifest.type,'module');
+  assert.equal(manifest.name,'dsh-model-usage');assert.equal(manifest.type,'module');
   assert.ok(!manifest.dependencies);
   assert.match(manifest.exports['.'],/^\.\/dist\/index\.[a-f0-9]{12}\.js$/);
   assert.match(manifest.exports['./client'],/^\.\/dist\/client\.[a-f0-9]{12}\.js$/);
   const builtHost = await import(new URL(manifest.exports['.'],root));
   assert.equal(typeof builtHost.apply,'function');
+  assert.equal(builtHost.name,manifest.name);
+  const readme = await readFile(new URL('README.md',root),'utf8');
+  assert.match(readme,/^# 模型用量 · dsh-model-usage/m);
+  assert.match(readme,/原创插件代码、界面、图标、文档和测试全部由 AI 生成/);
+  assert.ok(readme.includes('https://www.deepseek.com/zh/harness/'));
+  assert.ok(readme.includes('https://github.com/deepseek-ai/deepseek-harness'));
+  assert.match(readme,/非官方第三方插件/);
   assert.deepEqual(builtHost.inject,['connection','sessionPersistence']);
   assert.equal(manifest.private,undefined);
   assert.equal(manifest.publishConfig.access,'public');
@@ -26,7 +33,7 @@ test('built client matches source and registers actual sidebar/main slots',async
   const built = await readClient();
   assert.ok(built.endsWith(source));
   let plugin;vm.runInNewContext(built,{window:{__ModuleLoader__:{load(value){plugin=value}}},Intl,URL});
-  assert.equal(plugin.id,'@local/dsh-model-usage');
+  assert.equal(plugin.id,'dsh-model-usage');
   const registrations = [];
   const extension = plugin.factory(name=>{assert.equal(name,'react');return {createElement(){}}});
   extension.apply({slots:{inject(_slot,run){run()},register(meta,component){registrations.push({meta,component})}}});

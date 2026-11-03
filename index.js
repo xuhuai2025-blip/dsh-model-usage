@@ -1,6 +1,6 @@
 import { createUsageReader } from './core.js';
 
-export const name = '@local/dsh-model-usage';
+export const name = 'dsh-model-usage';
 export const inject = ['connection','sessionPersistence'];
 const json = (value,status = 200) => new Response(JSON.stringify(value), {status,headers:{
   'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff',

@@ -1,5 +1,5 @@
 {
-  "name": "@local/dsh-model-usage",
+  "name": "dsh-model-usage",
   "version": "0.2.0",
   "type": "module",
   "description": "模型用量：本机 DSH 会话 Token、模型占比、趋势与官方 API 等价成本估算。",
@@ -13,8 +13,8 @@
   },
   "packageManager": "pnpm@11.28.5",
   "exports": {
-    ".": "./dist/index.0caf97742342.js",
-    "./client": "./dist/client.9067c9c9c7e6.js",
+    ".": "./dist/index.4048ce318e11.js",
+    "./client": "./dist/client.4237c43c45c8.js",
     "./locale/*.json": "./locale/*.json",
     "./icon": "./icon.svg"
   },

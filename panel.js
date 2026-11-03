@@ -1,6 +1,6 @@
 // Native DSH sidebar panel. No external resources or runtime dependencies.
 window.__ModuleLoader__.load({
-  id: '@local/dsh-model-usage',
+  id: 'dsh-model-usage',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
